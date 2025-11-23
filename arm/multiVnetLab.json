@@ -81,7 +81,7 @@
             "comments": "vnet with 3 subnets",
             "name": "[concat(parameters('vnetNamePrefix'), '-template-', copyIndex(1))]",
             "type": "Microsoft.Resources/deployments",
-            "apiVersion": "2016-06-01",
+            "apiVersion": "2020-06-01", // FIXED: Updated from 2016-06-01 to 2020-06-01
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
