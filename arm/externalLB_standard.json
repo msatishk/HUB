@@ -90,6 +90,7 @@
                     {
                         "name": "[variables('frontendConfigName')]",
                         "properties": {
+                            "privateIPAllocationMethod": "Dynamic",
                             "publicIpAddress": {
                                 "id": "[resourceId('Microsoft.Network/publicIPAddresses', parameters('pipName'))]"
                             }
