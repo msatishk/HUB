@@ -67,7 +67,7 @@
                 "name": "Standard",
                 "tier": "Regional"
             },
-            "apiVersion": "2018-02-01",
+            "apiVersion": "",
             "location": "[resourceGroup().location]",
             "properties": {
                 "publicIPAllocationMethod": "Static",
@@ -80,7 +80,7 @@
             "comments": "External Load Balancer",
             "type": "Microsoft.Network/loadBalancers",
             "name": "[parameters('slbName')]",
-            "apiVersion": "2018-08-01",
+            "apiVersion": "2023-07-01",
             "location": "[resourceGroup().location]",
             "sku": {
                 "name": "Standard"
@@ -90,7 +90,6 @@
                     {
                         "name": "[variables('frontendConfigName')]",
                         "properties": {
-                            "privateIPAllocationMethod": "Dynamic",
                             "publicIpAddress": {
                                 "id": "[resourceId('Microsoft.Network/publicIPAddresses', parameters('pipName'))]"
                             }
