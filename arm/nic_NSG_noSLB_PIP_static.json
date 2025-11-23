@@ -5,7 +5,7 @@
         "nicName": {
             "defaultValue": "myNic",
             "type": "string"
-        },
+        },pi
         "vnetName": {
             "defaultValue": "myVnet",
             "type": "string"
@@ -28,7 +28,7 @@
         }
     },
     "variables": {
-		"networkApiVersion": "2016-03-30"
+		"networkApiVersion": "2023-07-01"
     },
     "resources": [
         {
