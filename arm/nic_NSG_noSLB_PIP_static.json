@@ -23,7 +23,7 @@
             "type": "string"
         },
         "pipSku": {
-            "defaultValue": "basic",
+            "defaultValue": "standard",
             "type": "string"
         }
     },
