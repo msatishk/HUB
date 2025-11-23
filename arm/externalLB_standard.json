@@ -63,7 +63,7 @@
             "false": false
         },
         "dsrBool": "[variables('dsrBoolHash')[parameters('dsr')]]",
-        "networkApiVersion": "2023-07-01" // 💡 New variable for updated API version
+        "networkApiVersion": "2020-06-01" // FIXED: Changed from 2023-07-01 to 2020-06-01
     },
     "resources": [
         {
@@ -74,7 +74,7 @@
                 "name": "Standard",
                 "tier": "Regional"
             },
-            "apiVersion": "[variables('networkApiVersion')]", // 💡 Using new version
+            "apiVersion": "[variables('networkApiVersion')]",
             "location": "[resourceGroup().location]",
             "properties": {
                 "publicIPAllocationMethod": "Static",
@@ -87,7 +87,7 @@
             "comments": "External Load Balancer",
             "type": "Microsoft.Network/loadBalancers",
             "name": "[parameters('slbName')]",
-            "apiVersion": "[variables('networkApiVersion')]", // 💡 Using new version
+            "apiVersion": "[variables('networkApiVersion')]",
             "location": "[resourceGroup().location]",
             "sku": {
                 "name": "Standard"
@@ -97,8 +97,6 @@
                     {
                         "name": "[variables('frontendConfigName')]",
                         "properties": {
-                            // ❌ REMOVED: "privateIPAllocationMethod": "Dynamic", 
-                            // This property is invalid when linking a Public IP
                             "publicIpAddress": {
                                 "id": "[resourceId('Microsoft.Network/publicIPAddresses', parameters('pipName'))]"
                             }
