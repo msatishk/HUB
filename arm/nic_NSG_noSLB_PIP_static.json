@@ -5,7 +5,7 @@
         "nicName": {
             "defaultValue": "myNic",
             "type": "string"
-        },pi
+        },
         "vnetName": {
             "defaultValue": "myVnet",
             "type": "string"
