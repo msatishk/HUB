@@ -211,7 +211,7 @@
       "name": "vnet4gwPip",
       "location": "[resourceGroup().location]",
       "properties": {
-        "publicIPAllocationMethod": "Dynamic"
+        "publicIPAllocationMethod": "Static"
       },
       "sku": {
         "name": "Standard"
@@ -225,7 +225,7 @@
       "name": "vnet5gwPip",
       "location": "[resourceGroup().location]",
       "properties": {
-        "publicIPAllocationMethod": "Dynamic"
+        "publicIPAllocationMethod": "Static"
       },
       "sku": {
         "name": "Standard"
