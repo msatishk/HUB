@@ -2,7 +2,41 @@
     "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        // ... (Parameters are unchanged)
+        "vnetName": {
+            "defaultValue": "myVnet",
+            "type": "string"
+        },
+        "location": {
+            "defaultValue": "[resourceGroup().location]",
+            "type": "string"
+        },
+        "subnetName": {
+            "defaultValue": "serverSubnet",
+            "type": "string"
+        },
+        "adminUsername": {
+            "defaultValue": null,
+            "type": "string"
+        },
+        "adminPassword": {
+            "defaultValue": null,
+            "type": "securestring"
+        },
+        "vmName": {
+            "defaultValue": "myvm",
+            "type": "string"
+        },
+        "vmType": {
+            "defaultValue": "ubuntu",
+            "type": "string",
+            "allowedValues": [
+                "ubuntu"
+            ]
+        },
+        "vmSize": {
+            "defaultValue": "Standard_B1s",
+            "type": "string"
+        },
         "createPip": {
             "defaultValue": "yes",
             "type": "string",
@@ -14,8 +48,8 @@
         "nicName": "[concat(parameters('vmName'),'-nic')]",
         "pipName": "[concat(parameters('vmName'),'-pip')]",
         "diskName": "[concat(parameters('vmName'),'-disk')]",
-        "apiVersion": "2023-07-01",
-        "networkApiVersion": "2018-08-01", // Added networkApiVersion
+        "computeApiVersion": "2023-07-01", // Renamed for clarity
+        "nicDeploymentApiVersion": "2020-06-01", // Updated to a more recent, stable version
         "nicTemplateUriHash": {
             "yes": "[uri(deployment().properties.templateLink.uri, 'nic_noNSG_noSLB_PIP_dynamic.json')]",
             "no": "[uri(deployment().properties.templateLink.uri, 'nic_noNSG_noSLB_noPIP_dynamic.json')]"
@@ -32,37 +66,55 @@
         "skuData": "[variables('skuDataTable')[parameters('vmType')]]"
     },
     "resources": [
-        // **NEW RESOURCE: Create Public IP with Standard SKU**
-        {
-            "comments": "Create Standard Public IP address for the VM",
-            "apiVersion": "[variables('networkApiVersion')]",
-            "type": "Microsoft.Network/publicIPAddresses",
-            "name": "[variables('pipName')]",
-            "location": "[parameters('location')]",
-            "sku": { 
-                "name": "Standard" 
-            },
-            "properties": {
-                "publicIPAllocationMethod": "Dynamic"
-            },
-            "condition": "[equals(parameters('createPip'), 'yes')]"
-        },
         {	
         "comments": "VMs created and linked to NICs",
             "type": "Microsoft.Compute/virtualMachines",
             "name": "[parameters('vmName')]",
-            // ... (rest of VM resource is unchanged)
+            "apiVersion": "[variables('computeApiVersion')]", // FIX: Switched back to variable but using a renamed variable that is explicitly used for compute. If this fails, hardcode to "2023-07-01"
+            "location": "[parameters('location')]",
+            "properties": {
+            "hardwareProfile": {
+                    "vmSize": "[variables('skuData')['size']]"
+                },
+                "storageProfile": {
+                    "imageReference": {
+                        "publisher": "[variables('skuData')['publisher']]",
+                        "offer": "[variables('skuData')['offer']]",
+                        "sku": "[variables('skuData')['sku']]",
+                        "version": "latest"
+                    },
+                    "osDisk": {
+                        "osType": "Linux",
+                        "createOption": "FromImage",
+                        "diskSizeGB": 31
+                    },
+                    "dataDisks": []
+                },
+                "osProfile": {
+                    "computerName": "[parameters('vmName')]",
+                    "adminUsername": "[parameters('adminUsername')]",
+                    "secrets": [],
+                    "adminPassword": "[parameters('adminPassword')]"
+                },
+                "networkProfile": {
+                    "networkInterfaces": [
+                        {
+                            "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('nicName'))]"
+                        }
+                    ]
+                }
+            },
+            "resources": [
+            ],
             "dependsOn": [
-                "[variables('nicName')]",
-                // Added new dependency
-                "[resourceId('Microsoft.Network/publicIPAddresses', variables('pipName'))]" 
+                "[variables('nicName')]"
             ]
         },
         {
             "comments": "Create NIC for the VM with or without public IP",
             "name": "[variables('nicName')]",
             "type": "Microsoft.Resources/deployments",
-            "apiVersion": "2016-06-01",
+            "apiVersion": "[variables('nicDeploymentApiVersion')]", // FIX: Using updated API version variable
             "properties": {
             "mode": "Incremental",
             "templateLink": {
@@ -77,10 +129,7 @@
                         "subnetName": { "value": "[parameters('subnetName')]"}
                     }
                 },
-            "dependsOn": [
-                // Added new dependency
-                "[resourceId('Microsoft.Network/publicIPAddresses', variables('pipName'))]"
-            ]
+            "dependsOn": []
         }
     ]
 }
