@@ -45,7 +45,7 @@
     "vmSize": {
       "defaultValue": "Standard_B1s",
       "type": "string",
-      "metadata": { "description": "Size with which VMs (not the NVAs) will be created. Might be useful to modify if hitting quota limits" }
+      "metadata": { "description": "Size with which VMs (not the NVAs) will be created" }
     },
     "location2ary": {
       "defaultValue": "westus2",
@@ -179,16 +179,14 @@
         "parameters": {
           "adminUsername": {"value": "[parameters('adminUsername')]"},
           "adminPassword": {"value": "[parameters('adminPassword')]"},
-          "vmName": { "value": "myVnet1-vm2" },
+          "vmName": {"value": "myVnet1-vm2"},
           "vmType": {"value": "ubuntu"},
-          "vmSize": { "value": "[parameters('vmSize')]" },
-          "vnetName": { "value": "myVnet1" },
-          "subnetName": { "value": "myVnet1Subnet1" }
+          "vmSize": {"value": "[parameters('vmSize')]"},
+          "vnetName": {"value": "myVnet1"},
+          "subnetName": {"value": "myVnet1Subnet1"}
         }
       },
-      "dependsOn": [
-        "vnets"
-      ]
+      "dependsOn": ["vnets"]
     },
     {
       "comments": "Create NVAs in vnet4, if createNVA=yes",
@@ -203,12 +201,10 @@
         },
         "parameters": "[variables('nvaParamsYesNo')[parameters('createNVA')]]"
       },
-      "dependsOn": [
-        "vnets"
-      ]
+      "dependsOn": ["vnets"]
     },
     {
-      "comments": "Create VPN gateway public IPs only if createVPNgw=yes",
+      "comments": "Create public IP address for Vnet Gateway in Vnet4",
       "condition": "[equals(parameters('createVPNgw'), 'yes')]",
       "apiVersion": "[variables('networkApiVersion')]",
       "type": "Microsoft.Network/publicIPAddresses",
@@ -216,22 +212,28 @@
       "location": "[resourceGroup().location]",
       "properties": {
         "publicIPAllocationMethod": "Dynamic"
+      },
+      "sku": {
+        "name": "Standard"
       }
     },
     {
-      "condition": "[equals(parameters('createVPNgw'), 'yes')]",
       "comments": "Create public IP address for Vnet Gateway in Vnet5",
+      "condition": "[equals(parameters('createVPNgw'), 'yes')]",
       "apiVersion": "[variables('networkApiVersion')]",
       "type": "Microsoft.Network/publicIPAddresses",
       "name": "vnet5gwPip",
       "location": "[resourceGroup().location]",
       "properties": {
         "publicIPAllocationMethod": "Dynamic"
+      },
+      "sku": {
+        "name": "Standard"
       }
     },
     {
-      "condition": "[equals(parameters('createVPNgw'), 'yes')]",
       "comments": "Create VPN gateway in vnet4",
+      "condition": "[equals(parameters('createVPNgw'), 'yes')]",
       "name": "vnet4Gw",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "[variables('deploymentApiVersion')]",
@@ -243,14 +245,11 @@
         },
         "parameters": "[variables('vpnGwTemplateParams1')]"
       },
-      "dependsOn": [
-        "vnet4gwPip",
-        "vnets"
-      ]
+      "dependsOn": ["vnet4gwPip","vnets"]
     },
     {
-      "condition": "[equals(parameters('createVPNgw'), 'yes')]",
       "comments": "Create VPN gateway in vnet5",
+      "condition": "[equals(parameters('createVPNgw'), 'yes')]",
       "name": "vnet5Gw",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "[variables('deploymentApiVersion')]",
@@ -262,32 +261,7 @@
         },
         "parameters": "[variables('vpnGwTemplateParams2')]"
       },
-      "dependsOn": [
-        "vnet5gwPip",
-        "vnets"
-      ]
-    },
-    {
-      "comments": "create vnet peering between hub and spokes",
-      "name": "hub2spoke1",
-      "type": "Microsoft.Resources/deployments",
-      "apiVersion": "[variables('deploymentApiVersion')]",
-      "properties": {
-        "mode": "Incremental",
-        "templateLink": {
-          "uri": "[uri(deployment().properties.templateLink.uri, 'vnetPeeringHubNSpoke.json')]",
-          "contentVersion": "1.0.0.0"
-        },
-        "parameters": {
-          "hubVnetName": { "value": "myVnet4" },    
-          "spokeVnetName": { "value": "myVnet1" },
-          "useRemoteGateways": { "value": "[variables('PeeringUseRemoteGateways')]" } 
-        }
-      },
-      "dependsOn": [
-        "vnets",
-        "vnet4Gw"
-      ]
+      "dependsOn": ["vnet5gwPip","vnets"]
     },
     {
       "comments": "Deploy optionally UDRs",
