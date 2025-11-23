@@ -48,8 +48,8 @@
         "nicName": "[concat(parameters('vmName'),'-nic')]",
         "pipName": "[concat(parameters('vmName'),'-pip')]",
         "diskName": "[concat(parameters('vmName'),'-disk')]",
-        "computeApiVersion": "2023-07-01", // Renamed for clarity
-        "nicDeploymentApiVersion": "2020-06-01", // Updated to a more recent, stable version
+        // Removed 'computeApiVersion' as it is now hardcoded below
+        "nicDeploymentApiVersion": "2020-06-01", 
         "nicTemplateUriHash": {
             "yes": "[uri(deployment().properties.templateLink.uri, 'nic_noNSG_noSLB_PIP_dynamic.json')]",
             "no": "[uri(deployment().properties.templateLink.uri, 'nic_noNSG_noSLB_noPIP_dynamic.json')]"
@@ -70,7 +70,7 @@
         "comments": "VMs created and linked to NICs",
             "type": "Microsoft.Compute/virtualMachines",
             "name": "[parameters('vmName')]",
-            "apiVersion": "[variables('computeApiVersion')]", // FIX: Switched back to variable but using a renamed variable that is explicitly used for compute. If this fails, hardcode to "2023-07-01"
+            "apiVersion": "2023-07-01", // FIXED: Hardcoded API version to prevent template validation failure
             "location": "[parameters('location')]",
             "properties": {
             "hardwareProfile": {
@@ -114,7 +114,7 @@
             "comments": "Create NIC for the VM with or without public IP",
             "name": "[variables('nicName')]",
             "type": "Microsoft.Resources/deployments",
-            "apiVersion": "[variables('nicDeploymentApiVersion')]", // FIX: Using updated API version variable
+            "apiVersion": "[variables('nicDeploymentApiVersion')]",
             "properties": {
             "mode": "Incremental",
             "templateLink": {
