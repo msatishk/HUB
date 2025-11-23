@@ -59,7 +59,7 @@
         }
     },
     "variables": {
-        "deploymentApiVersion": "2018-05-01",
+        "deploymentApiVersion": "2020-06-01", // FIXED: Updated from 2018-05-01 to 2020-06-01
         "networkApiVersion": "2018-08-01",
         "linuxVmTemplateURI": "[uri(deployment().properties.templateLink.uri, 'linuxVM.json')]",
         "multiVnetParams": {
@@ -177,14 +177,14 @@
             "contentVersion": "1.0.0.0"
         },
         "parameters":  {
-                    "adminUsername": {"value": "[parameters('adminUsername')]"},
-                    "adminPassword": {"value": "[parameters('adminPassword')]"},
-                    "vmName": { "value": "myVnet1-vm2" },
-                    "vmType": {"value": "ubuntu"},
-                    "vmSize": { "value": "[parameters('vmSize')]" },
-                    "vnetName": { "value": "myVnet1" },
-                    "subnetName": { "value": "myVnet1Subnet1" }
-                }
+                        "adminUsername": {"value": "[parameters('adminUsername')]"},
+                        "adminPassword": {"value": "[parameters('adminPassword')]"},
+                        "vmName": { "value": "myVnet1-vm2" },
+                        "vmType": {"value": "ubuntu"},
+                        "vmSize": { "value": "[parameters('vmSize')]" },
+                        "vnetName": { "value": "myVnet1" },
+                        "subnetName": { "value": "myVnet1Subnet1" }
+                    }
         },
         "dependsOn": [
             "vnets"
