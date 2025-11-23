@@ -16,12 +16,15 @@
     "resources": [
         {
             "comments": "Create public IP address",
-            "apiVersion": "2015-05-01-preview",
+            "apiVersion": "2020-06-01", // FIXED: Updated API Version for Standard SKU support
             "type": "Microsoft.Network/publicIPAddresses",
             "name": "[parameters('pipName')]",
             "location": "[parameters('location')]",
+            "sku": { 
+                "name": "Standard" // FIXED: Explicitly set Standard SKU
+            },
             "properties": {
-                "publicIPAllocationMethod": "Dynamic"
+                "publicIPAllocationMethod": "Static" // FIXED: Must be Static for Standard SKU
             }
         }
     ]
