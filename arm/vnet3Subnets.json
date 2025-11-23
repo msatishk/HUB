@@ -51,7 +51,7 @@
                 "ubuntu"
             ],
             "metadata": { "description": "Type of VM to optionally create in the first subnet in every vnet"}
-		},
+        },
         "vmSize": {
             "defaultValue": "Standard_B1s",
             "type": "string"
@@ -72,7 +72,7 @@
     },
     "variables": {
         "networkApiVersion": "2016-03-30",
-        "deploymentApiVersion": "2016-09-01",
+        "deploymentApiVersion": "2020-06-01", // FIXED: Updated from 2016-09-01 to 2020-06-01
         "vnetSpace": "[concat(parameters('vnetOctets12'), '0.0/16')]",
         "gwTemplateUri": "[uri(deployment().properties.templateLink.uri, 'vpnGw.json')]",
         "gwTemplateParam": {
@@ -144,56 +144,56 @@
             "resources": [],
             "dependsOn": []
         },
-		{
-			"comments": "Optionally create a public IP address, if createGw equals 'yes'",
+        {
+            "comments": "Optionally create a public IP address, if createGw equals 'yes'",
             "condition": "[equals(parameters('createGw'), 'yes')]",
-			"name": "[parameters('gwPIPName')]",
+            "name": "[parameters('gwPIPName')]",
             "type": "Microsoft.Resources/deployments",
-			"apiVersion": "[variables('deploymentApiVersion')]",
-			"properties": {
-				"mode": "Incremental",
-				"templateLink": {
-					"uri": "[variables('gwPipUri')]",
-					"contentVersion": "1.0.0.0"
-				},
-				"parameters": "[variables('gwPipParam')]"
+            "apiVersion": "[variables('deploymentApiVersion')]",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[variables('gwPipUri')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": "[variables('gwPipParam')]"
             },
             "dependsOn": [
                 "[parameters('vnetName')]"
             ]
         },
-		{
+        {
             "comments": "Optionally create VPN gateway, if createGw equals 'yes'",
             "condition": "[equals(parameters('createGw'), 'yes')]",
-			"name": "[concat(parameters('vnetName'), 'VpnGw')]",
+            "name": "[concat(parameters('vnetName'), 'VpnGw')]",
             "type": "Microsoft.Resources/deployments",
-			"apiVersion": "[variables('deploymentApiVersion')]",
-			"properties": {
-				"mode": "Incremental",
-				"templateLink": {
-					"uri": "[variables('gwTemplateUri')]",
-					"contentVersion": "1.0.0.0"
-				},
-				"parameters": "[variables('gwTemplateParam')]"
+            "apiVersion": "[variables('deploymentApiVersion')]",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[variables('gwTemplateUri')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": "[variables('gwTemplateParam')]"
             },
             "dependsOn": [
                 "[parameters('gwPIPName')]",
                 "[parameters('vnetName')]"                
             ]
         },
-		{
+        {
             "comments": "Optionally create a VM in first subnet, if createVm equals 'yes'",
             "condition": "[equals(parameters('createVm'), 'yes')]",
-			"name": "[variables('vmName')]",
+            "name": "[variables('vmName')]",
             "type": "Microsoft.Resources/deployments",
-			"apiVersion": "[variables('deploymentApiVersion')]",
-			"properties": {
-				"mode": "Incremental",
-				"templateLink": {
-					"uri": "[variables('vmTemplateUri')]",
-					"contentVersion": "1.0.0.0"
-				},
-				"parameters": "[variables('vmTemplateParam')]"
+            "apiVersion": "[variables('deploymentApiVersion')]",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[variables('vmTemplateUri')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": "[variables('vmTemplateParam')]"
             },
             "dependsOn": [
                 "[parameters('vnetName')]"                
