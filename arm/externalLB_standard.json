@@ -2,14 +2,14 @@
     "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-		"vnetName": {
+        "vnetName": {
             "defaultValue": "myVnet",
             "type": "string"
-		},
-		"subnetName": {
+        },
+        "subnetName": {
             "defaultValue": "serverSubnet",
             "type": "string"
-		},
+        },
         "slbName": {
             "defaultValue": "mySLB",
             "type": "string"
@@ -56,7 +56,14 @@
         }
     },
     "variables": {
-		"frontendConfigName": "myFrontendConfig"
+        "frontendConfigName": "myFrontendConfig",
+        "probeName": "myProbe",
+        "dsrBoolHash": {
+            "true": true,
+            "false": false
+        },
+        "dsrBool": "[variables('dsrBoolHash')[parameters('dsr')]]",
+        "networkApiVersion": "2023-07-01" // 💡 New variable for updated API version
     },
     "resources": [
         {
@@ -67,7 +74,7 @@
                 "name": "Standard",
                 "tier": "Regional"
             },
-            "apiVersion": "",
+            "apiVersion": "[variables('networkApiVersion')]", // 💡 Using new version
             "location": "[resourceGroup().location]",
             "properties": {
                 "publicIPAllocationMethod": "Static",
@@ -80,7 +87,7 @@
             "comments": "External Load Balancer",
             "type": "Microsoft.Network/loadBalancers",
             "name": "[parameters('slbName')]",
-            "apiVersion": "2023-07-01",
+            "apiVersion": "[variables('networkApiVersion')]", // 💡 Using new version
             "location": "[resourceGroup().location]",
             "sku": {
                 "name": "Standard"
@@ -90,6 +97,8 @@
                     {
                         "name": "[variables('frontendConfigName')]",
                         "properties": {
+                            // ❌ REMOVED: "privateIPAllocationMethod": "Dynamic", 
+                            // This property is invalid when linking a Public IP
                             "publicIpAddress": {
                                 "id": "[resourceId('Microsoft.Network/publicIPAddresses', parameters('pipName'))]"
                             }
@@ -102,8 +111,37 @@
                     }
                 ],
                 "loadBalancingRules": [
+                    {
+                        "name": "[parameters('ruleName')]",
+                        "properties": {
+                            "frontendIPConfiguration": {
+                                "id": "[concat( resourceId('Microsoft.Network/loadBalancers', parameters('slbName')), '/frontendIPConfigurations/', variables('frontendConfigName'))]"
+                            },
+                            "frontendPort": "[parameters('frontendport')]",
+                            "backendPort": "[parameters('backendport')]",
+                            "enableFloatingIP": "[variables('dsrBool')]",
+                            "idleTimeoutInMinutes": 4,
+                            "protocol": "Tcp",
+                            "loadDistribution": "Default",
+                            "backendAddressPool": {
+                                "id": "[concat(resourceId('Microsoft.Network/loadBalancers', parameters('slbName')), '/backendAddressPools/', parameters('backendConfigName'))]"
+                            },
+                            "probe": {
+                                "id": "[concat(resourceId('Microsoft.Network/loadBalancers', parameters('slbName')), '/probes/', variables('probeName'))]"
+                            }
+                        }
+                    }
                 ],
                 "probes": [
+                    {
+                        "name": "[variables('probeName')]",
+                        "properties": {
+                            "protocol": "Tcp",
+                            "port": "[parameters('probePort')]",
+                            "intervalInSeconds": 15,
+                            "numberOfProbes": 2
+                        }
+                    }
                 ],
                 "inboundNatRules": [],
                 "outboundRules": [
