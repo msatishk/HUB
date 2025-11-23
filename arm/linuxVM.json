@@ -69,7 +69,7 @@
         "comments": "VMs created and linked to NICs",
             "type": "Microsoft.Compute/virtualMachines",
             "name": "[parameters('vmName')]",
-            "apiVersion": "2023-07-01", // **FIX: Hardcoded VM API version**
+            "apiVersion": "2023-07-01", // FIXED: Hardcoded VM API version
             "location": "[parameters('location')]",
             "properties": {
             "hardwareProfile": {
@@ -113,7 +113,7 @@
             "comments": "Create NIC for the VM with or without public IP",
             "name": "[variables('nicName')]",
             "type": "Microsoft.Resources/deployments",
-            "apiVersion": "2020-06-01", // **FIX: Hardcoded nested deployment API version**
+            "apiVersion": "2020-06-01", // FIXED: Hardcoded nested deployment API version (Error Line)
             "properties": {
             "mode": "Incremental",
             "templateLink": {
